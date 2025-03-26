@@ -1,7 +1,10 @@
 [project]
 name = "simikit"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.0.1"
+description = "Image Similarity Toolkit in Python"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
+
+[tool.uv]
+build-constraint-dependencies = ["setuptools==60.0.0"]
