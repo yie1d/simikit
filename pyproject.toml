@@ -4,7 +4,38 @@ version = "0.0.1"
 description = "Image Similarity Toolkit in Python"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "dotenv>=0.9.9",
+    "loguru>=0.7.3",
+    "pillow>=11.1.0",
+    "pywavelets>=1.8.0",
+    "scikit-learn>=1.6.1",
+]
 
 [tool.uv]
 build-constraint-dependencies = ["setuptools==60.0.0"]
+
+[dependency-groups]
+test = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.11.2",
+]
+
+[tool.ruff.lint]
+preview = true
+select = ["E", "F", "W", "I", "UP"]
+exclude = ['tests', 'tests/*']
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnings'
