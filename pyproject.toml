@@ -4,6 +4,22 @@ version = "0.0.1"
 description = "Image Similarity Toolkit in Python"
 readme = "README.md"
 requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "dotenv>=0.9.9",
     "loguru>=0.7.3",
@@ -25,11 +41,11 @@ test = [
 [tool.ruff.lint]
 preview = true
 select = ["E", "F", "W", "I", "UP"]
-exclude = ['tests', 'tests/*']
+exclude = ["tests", "tests/*", "demos/*"]
 
 [tool.ruff.format]
 preview = true
-quote-style = 'single'
+quote-style = "single"
 
 [tool.ruff]
 line-length = 120
@@ -38,4 +54,4 @@ target-version = "py310"
 
 [tool.pytest.ini_options]
 pythonpath = "."
-addopts = '-p no:warnings'
+addopts = "-p no:warnings"
