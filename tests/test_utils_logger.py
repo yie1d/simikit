@@ -1,5 +1,6 @@
 import pytest
-from simikit.utils.logger import set_logger, LogLevel
+
+from simikit.utils.logger import LogLevel, set_logger
 
 
 def test_set_logger():
