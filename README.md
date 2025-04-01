@@ -21,11 +21,14 @@ print(AHash().encode(image_path))
 
 ## Supported Algorithms
 
-- hash
+- HASH
   - Average hashing
   - Difference hashing
   - Perceptual hashing
   - Wavelet hashing
+- Transformer
+  - VIT
+  - DINOv2
 
 ## Contribution
 

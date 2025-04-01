@@ -20,11 +20,14 @@ print(AHash().encode(image_path))
 
 ## 支持的算法
 
-- hash
+- HASH
   - Average hashing
   - Difference hashing
   - Perceptual hashing
   - Wavelet hashing
+- Transformer
+  - VIT
+  - DINOv2
 
 ## 贡献
 
