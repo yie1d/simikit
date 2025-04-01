@@ -1,12 +1,10 @@
-import os
 import sys
 from enum import Enum
 
 import loguru._logger
-from dotenv import load_dotenv
 from loguru import logger as _loguru_logger
 
-load_dotenv()
+from simikit.config import config
 
 
 class LogLevel(Enum):
@@ -53,4 +51,4 @@ def set_logger(
     return _loguru_logger
 
 
-logger = set_logger(os.environ.get('LOG_LEVEL', 'INFO').upper())
+logger = set_logger(config.log.level)

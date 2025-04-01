@@ -21,11 +21,11 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "dotenv>=0.9.9",
     "loguru>=0.7.3",
     "pillow>=11.1.0",
     "pywavelets>=1.8.0",
     "scikit-learn>=1.6.1",
+    "tomli>=2.2.1",
     "torch>=2.6.0",
     "transformers>=4.50.3",
 ]

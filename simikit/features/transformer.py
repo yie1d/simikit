@@ -1,20 +1,17 @@
-import os
 from abc import abstractmethod
 from pathlib import Path
 
 import numpy as np
 import torch
-from dotenv import load_dotenv
 from PIL import Image
 from transformers import AutoImageProcessor, AutoModel, BaseImageProcessor, BatchFeature, PreTrainedModel, ViTModel
 
+from simikit.config import config
 from simikit.features.base import BaseExtractor, BaseFeature
 
-load_dotenv()
+CACHE_DIR = Path(config.transformers.cache_dir)
 
-CACHE_DIR = os.getenv('TRANSFORMERS_CACHE_DIR')
 if CACHE_DIR:
-    CACHE_DIR = Path(CACHE_DIR).absolute()
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -52,24 +49,33 @@ class BaseTransformer(BaseExtractor):
     as well as extracting features from images.
     """
 
-    INSTANCE = None
+    _INSTANCE = None
+    _initialized = False
     image_processor: None | BaseImageProcessor = None
     model: None | PreTrainedModel = None
     pretrained_model_name_or_path: str = ''
 
     def __new__(cls, *args, **kwargs):
         """
-        Implement the singleton pattern. Create a new instance if it doesn't exist,
-        and initialize and validate the model.
+        Implement the singleton pattern. Create a new _INSTANCE if it doesn't exist.
 
         Returns:
-            BaseTransformer: The singleton instance of the class.
+            BaseTransformer: The singleton _INSTANCE of the class.
         """
-        if cls.INSTANCE is None:
-            cls.INSTANCE = super().__new__(cls, *args, **kwargs)
-            cls._init_model(cls.INSTANCE)
-            cls._judge_model(cls.INSTANCE)
-        return cls.INSTANCE
+        if cls._INSTANCE is None:
+            cls._INSTANCE = super().__new__(cls, *args, **kwargs)
+        return cls._INSTANCE
+
+    def __init__(self):
+        """
+        Initialize the transformer feature extractor.
+        This method should be called only once per class, and it will initialize the model and image processor.
+        """
+        if not self._initialized:
+            super().__init__()
+            self._init_model()
+            self._judge_model()
+            self._initialized = True
 
     @abstractmethod
     def _init_model(self):

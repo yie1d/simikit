@@ -32,7 +32,6 @@ class TestBaseTransformer:
             def _init_model(self):
                 pass
 
-        MockTransformer.INSTANCE = None
         with patch.object(MockTransformer, '_judge_model') as mock_judge:
             with patch.object(MockTransformer, '_init_model') as mock_init:
                 instance = MockTransformer()
@@ -46,7 +45,6 @@ class TestBaseTransformer:
                 self.image_processor = MagicMock(spec=BaseImageProcessor)
                 self.pretrained_model_name_or_path = 'test_model'
 
-        MockTransformer.INSTANCE = None
         transformer = MockTransformer()
         transformer._judge_model()
 
@@ -61,7 +59,6 @@ class TestBaseTransformer:
         mock_image_array = MagicMock(spec=BatchFeature)
         mock_image_processor.return_value = mock_image_array
 
-        MockTransformer.INSTANCE = None
         with patch.object(MockTransformer, '_judge_model'):
             with patch.object(MockTransformer, '_init_model'):
                 transformer = MockTransformer()
@@ -81,7 +78,6 @@ class TestBaseTransformer:
         mock_outputs.last_hidden_state = torch.tensor([[[1, 2, 3]]])
         mock_no_grad.return_value.__enter__.return_value = None
 
-        MockTransformer.INSTANCE = None
         with patch.object(MockTransformer, '_judge_model'):
             MockTransformer().model.return_value = mock_outputs
             transformer = MockTransformer()

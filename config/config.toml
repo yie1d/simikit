@@ -1,0 +1,9 @@
+# Log configuration.
+[log]
+level = 'DEBUG'
+
+# Transformers configuration.
+[transformers]
+# Cache directory for transformers models.
+cache_dir = './cache_dir'
+
