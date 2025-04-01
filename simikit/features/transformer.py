@@ -63,7 +63,7 @@ class BaseTransformer(BaseExtractor):
             BaseTransformer: The singleton _INSTANCE of the class.
         """
         if cls._INSTANCE is None:
-            cls._INSTANCE = super().__new__(cls, *args, **kwargs)
+            cls._INSTANCE = super().__new__(cls)
         return cls._INSTANCE
 
     def __init__(self):

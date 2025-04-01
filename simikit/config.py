@@ -80,53 +80,62 @@ class Config:
             Config: The singleton instance of the Config class.
         """
         if cls._INSTANCE is None:
-            cls._INSTANCE = super().__new__(cls, *args, **kwargs)
+            cls._INSTANCE = super().__new__(cls)
         return cls._INSTANCE
 
-    def __init__(self):
+    def __init__(self, config_or_file_path: str | None | dict | Path = None):
         """
-        Initialize the configuration object.
+        Initialize the Config instance.
 
-        If the object has not been initialized, load the configuration from the TOML file,
-        create LogConfig and TransformerConfig instances, and mark the object as initialized.
+        If the instance has not been initialized, it attempts to load the configuration using the provided input.
+        The input can be a dictionary containing the configuration data, a string or Path object representing
+        the path to a TOML file. Based on the loaded configuration, it initializes the logging and transformer
+        configuration instances.
+
+        Args:
+            config_or_file_path (str | None | dict | Path, optional):
+                Can be a dictionary with configuration data, a string or Path object representing the path to a
+                configuration file. If None, an empty configuration will be used. Defaults to None.
         """
         if not self._initialized:
-            self.config = self._load_config()
+            self.config = self._load_config(config_or_file_path)
+
             self._log_config = LogConfig(**self.config.get('log', {}))
             self._transformer_config = TransformerConfig(**self.config.get('transformers', {}))
             self._initialized = True
 
     @staticmethod
-    def _get_config_path() -> Path:
+    def _load_config(config_or_file_path: str | None | dict | Path = None) -> dict[str, dict[str, Any]]:
         """
-        Get the path to the configuration file.
+        Load the configuration data.
 
-        This method constructs the path to the configuration file based on the project root.
-        If the file exists, it returns the path; otherwise, it raises a FileNotFoundError.
+        This method attempts to load the configuration based on the provided input.
+        If the input is a dictionary, it is directly returned as the configuration.
+        If the input is a string or Path object and the corresponding file exists, it reads the TOML file and
+        returns the parsed data. Otherwise, it returns an empty dictionary.
+
+        Args:
+            config_or_file_path (str | None | dict | Path, optional):
+                Can be a dictionary with configuration data, a string or Path object representing the path to
+                a configuration file. If None, an empty dictionary will be returned. Defaults to None.
 
         Returns:
-            Path: The path to the configuration file.
-
-        Raises:
-            FileNotFoundError: If the configuration file is not found in the config directory.
+            dict[str, dict[str, Any]]: The loaded configuration data as a dictionary.
         """
-        config_path = PROJECT_ROOT / 'config' / 'config.toml'
-        if config_path.exists():
-            return config_path
-        raise FileNotFoundError('No configuration file found in config directory')
-
-    def _load_config(self) -> dict[str, dict[str, Any]]:
-        """
-        Load the configuration from the TOML file.
-
-        This method reads the TOML file using tomllib and returns the parsed configuration as a dictionary.
-
-        Returns:
-            Dict[str, Dict[str, Any]]: The parsed configuration dictionary.
-        """
-        config_path = self._get_config_path()
-        with config_path.open('rb') as f:
-            return tomllib.load(f)
+        if isinstance(config_or_file_path, dict):
+            return config_or_file_path
+        elif isinstance(config_or_file_path, (str, Path)):
+            if isinstance(config_or_file_path, str):
+                config_or_file_path = Path(config_or_file_path)
+            if config_or_file_path.suffix != '.toml':
+                raise ValueError(f'Config file must have a .toml extension: {config_or_file_path}')
+            if config_or_file_path.exists():
+                with config_or_file_path.open('rb') as f:
+                    return tomllib.load(f)
+            else:
+                return {}
+        else:
+            return {}
 
     @property
     def log(self):
@@ -149,4 +158,4 @@ class Config:
         return self._transformer_config
 
 
-config = Config()
+config = Config(PROJECT_ROOT / 'config' / 'config.toml')
