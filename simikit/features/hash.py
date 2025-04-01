@@ -1,5 +1,4 @@
-from abc import ABC, abstractmethod
-from pathlib import Path
+from abc import abstractmethod
 from typing import Literal
 
 import numpy as np
@@ -7,106 +6,140 @@ import pywt
 from PIL import Image
 from scipy.fftpack import dct
 
-from simikit.utils.images import load_image, resize_image
+from simikit.features.base import BaseExtractor, BaseFeature
+from simikit.utils.images import resize_image
 
 WhashWavelet = Literal['haar', 'db4']
 
 
-class BaseImageHash(ABC):
-    """Abstract base class for image hashing algorithms."""
+class HashFeature(BaseFeature):
+    """Base class for hash features."""
 
-    def __init__(self, hash_size: int = 8):
-        """Initializes the BaseImageHash with a specified hash size.
+    TYPE = 'hash'
+
+    def __init__(self, data: np.ndarray):
+        """
+        Initialize a HashFeature object.
 
         Args:
-            hash_size (int): The desired size of the hash. Default is 8.
-
-        Raises:
-            ValueError: If the hash size is less than 2.
-
+            data (np.ndarray): The binary array representing the hash feature.
         """
-        if hash_size < 2:
-            raise ValueError('Hash size must be greater than or equal to 2')
-        self._image_size = (hash_size, hash_size)
-        self._origin_image: None | Image.Image = None
-
-    def encode(self, image: str | Path | Image.Image) -> str:
-        """Encodes an image using a specified hashing algorithm after preprocessing.
-
-        Args:
-            image (str | Path | Image.Image): The input image to be encoded,
-                which can be a file path or a PIL Image object.
-
-        Returns:
-            str: The result of the hashing algorithm applied to the preprocessed image data.
-
-        """
-        if isinstance(image, (str, Path)):
-            image = load_image(image)
-
-        image = self._special_preprocess(image)
-
-        image_array = self._preprocess_image(image)
-
-        hash_array = self._hash_algo(image_array)
-        return self._binary_array_to_hex(hash_array)
+        super().__init__(data)
+        self._hex = self._binary_array_to_hex(data)
 
     @staticmethod
     def _binary_array_to_hex(hash_array: np.ndarray) -> str:
-        """Converts a binary numpy array to a hexadecimal string.
-
-        This method takes a numpy array containing binary values (0s and 1s), packs these bits into bytes,
-        and then formats each byte as a two-digit hexadecimal number. The resulting hex characters are
-        concatenated into a single string which is returned.
+        """
+        Convert a binary array to a hexadecimal string.
 
         Args:
-           hash_array (np.ndarray): A numpy array of binary values (0s and 1s).
+            hash_array (np.ndarray): The binary array to be converted.
 
         Returns:
-           str: A string representing the hexadecimal equivalent of the input binary array.
-
+            str: The hexadecimal string representation of the binary array.
         """
         formatter = np.vectorize(lambda x: f'{x:02x}')
         packed = np.packbits(hash_array)
         hex_chars = formatter(packed)
         return ''.join(hex_chars)
 
-    def _special_preprocess(self, image: Image.Image) -> Image.Image:
-        """Some special preprocessing that subclasses may need to do.
+    def __str__(self):
+        """
+        Return the hexadecimal string representation of the hash feature.
+
+        Returns:
+            str: The hexadecimal string.
+        """
+        return self._hex
+
+    def __repr__(self):
+        """
+        Return the hexadecimal string representation of the hash feature for debugging purposes.
+
+        Returns:
+            str: The hexadecimal string.
+        """
+        return self._hex
+
+
+class BaseImageHash(BaseExtractor):
+    """
+    An abstract base class for image hashing algorithms.
+    This class provides a common structure for different image hashing algorithms.
+    Subclasses should implement the _hash_algo method.
+    """
+
+    def __init__(self, hash_size: int = 8):
+        """
+        Initialize a BaseImageHash object.
+
+        Args:
+            hash_size (int, optional): The size of the hash. Must be greater than or equal to 2. Defaults to 8.
+        """
+        super().__init__()
+        if hash_size < 2:
+            raise ValueError('Hash size must be greater than or equal to 2')
+        self._image_size = (hash_size, hash_size)
+        self._origin_image: None | Image.Image = None
+
+    def _extract_algo(self, image: Image.Image) -> HashFeature:
+        """
+        Extract the hash feature from an image.
+        Preprocess the image, apply the hashing algorithm, and return a HashFeature object.
 
         Args:
             image (Image.Image): The input image.
 
         Returns:
-            Image.Image: The preprocessed image.
+            HashFeature: The extracted hash feature.
+        """
+        image_array = self._preprocess_image(image)
+        hash_array = self._hash_algo(image_array)
+        return HashFeature(hash_array)
 
+    def _special_preprocess(self, image: Image.Image) -> Image.Image:
+        """
+        Perform special pre-processing on the image.
+        By default, it returns the original image. Subclasses can override this method.
+
+        Args:
+            image (Image.Image): The input image.
+
+        Returns:
+            Image.Image: The pre-processed image.
         """
         return image
 
     def _preprocess_image(self, image: Image.Image) -> np.ndarray:
-        """Processes an image by converting it to grayscale (if necessary) and resizing it.
+        """
+        Preprocess the image for hashing.
+        Perform special pre-processing, convert to grayscale, resize the image, and return a NumPy array.
 
         Args:
-            image (Image.Image): The input image to be processed.
+            image (Image.Image): The input image.
 
         Returns:
-            np.ndarray: The processed image as a numpy array, resized to the specified hash size.
-
+            np.ndarray: The pre-processed image as a NumPy array.
         """
+        image = self._special_preprocess(image)
+
         if image.mode != 'L':
             image = image.convert('L')
+
         resized_image = resize_image(image, self._image_size)
         return np.asarray(resized_image)
 
     @abstractmethod
-    def _hash_algo(self, image_array: np.ndarray):
-        """The implementation of the hash algorithm.
+    def _hash_algo(self, image_array: np.ndarray) -> np.ndarray:
+        """
+        Apply the hashing algorithm to the pre-processed image array.
+        This is an abstract method that must be implemented by subclasses.
 
         Args:
-            image_array (np.ndarray): The image array to hash.
+            image_array (np.ndarray): The pre-processed image array.
 
         Returns:
-
+            np.ndarray: The binary array representing the hash.
         """
         ...
 
@@ -202,7 +235,7 @@ class PHash(BaseImageHash):
             dct_result = dct(image_array)
             # Extract the low-frequency components of the DCT result.
             # In the simple mode, we skip the first column to focus on non-DC components.
-            low_freq = dct_result[: self._hash_size, 1 : self._hash_size + 1]
+            low_freq = dct_result[: self._hash_size, 1: self._hash_size + 1]
             threshold = low_freq.mean()
         else:
             dct_result = dct(dct(image_array, axis=0), axis=1)
@@ -282,6 +315,7 @@ class WHash(BaseImageHash):
         image_array = image_array / 255
         # Perform wavelet decomposition
         wavelet_coefficients = pywt.wavedec2(data=image_array, wavelet=self._wavelet_func, level=self._dwt_level)
+
         low_frequency_coefficients = wavelet_coefficients[0]
 
         # Calculate the median of the low-frequency coefficients
