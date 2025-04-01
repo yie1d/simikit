@@ -29,9 +29,16 @@ dependencies = [
     "torch>=2.6.0",
     "transformers>=4.50.3",
 ]
+[project.urls]
+"Homepage" = "https://github.com/yie1d/simikit"
 
 [tool.uv]
 build-constraint-dependencies = ["setuptools==60.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ['simikit']
+exclude = ['tests*', 'config*', 'examples*']
 
 [tool.ruff.lint]
 preview = true
