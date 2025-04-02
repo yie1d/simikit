@@ -1,12 +1,7 @@
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
-
-try:
-    # >= python3.11
-    import tomllib
-except ImportError:
-    import tomli as tomllib
 
 
 def get_project_root() -> Path:
