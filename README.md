@@ -8,8 +8,34 @@ English | [中文](doc/README_cn.md)
 SimiKit is a toolkit for commonly used image similarity algorithms. This project provides various tools to help developers quickly compare the effects of multiple image similarity algorithms, and assist developers in selecting an image similarity algorithm that best meets their needs.
 
 ## Installation
+#### 1. Install by pip
+```shell
+pip install simikit
+```
 
-> pip instal simikit
+#### 2. Install by [uv](https://github.com/astral-sh/uv)
+- 2.1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)(if not currently installed)
+```shell
+curl -LsSf https://astral.sh/uv/install.sh | sh  # macOS and Linux
+# on Windows:
+# powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+- 2.2. Clone the repository:
+```shell
+git clone https://github.com/yie1d/simikit.git  
+cd simikit
+```
+- 2.3. Create a new virtual environment and activate it:
+```shell
+uv venv
+source .venv/bin/activate  # On Unix/macOS
+# Or on Windows:
+# .venv\Scripts\activate
+```
+- 2.4. Install dependencies:
+```shell
+uv sync
+```
 
 ## Basic Usage
 
