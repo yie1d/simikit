@@ -2,6 +2,13 @@ from pathlib import Path
 
 from PIL import Image
 
+__all__ = [
+    'verify_image_path',
+    'verify_image_dir',
+    'load_image',
+    'resize_image'
+]
+
 IMAGE_SUFFIX = ['.jpg', '.jpeg', '.png']
 
 

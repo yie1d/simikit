@@ -1,7 +1,10 @@
 import tomllib
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
+
+from pydantic import BaseModel, Field, field_validator
+
+from simikit.utils.error_catcher import context_error_catcher
 
 
 def get_project_root() -> Path:
@@ -17,42 +20,24 @@ def get_project_root() -> Path:
 PROJECT_ROOT = get_project_root()
 
 
-@dataclass
-class LogConfig:
-    """
-    A dataclass representing the logging configuration.
-
-    Attributes:
-        level (Literal['TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL']):
-            The logging level. Defaults to 'DEBUG'.
-    """
-
-    level: Literal['TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL'] = 'DEBUG'
+class LogConfig(BaseModel):
+    level: Literal['TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL'] = Field(
+        'DEBUG',
+        description='The logging level.'
+    )
 
 
-@dataclass
-class TransformerConfig:
-    """
-    A dataclass representing the transformer configuration.
+class TransformerConfig(BaseModel):
+    cache_dir: None | str = Field(None, description="The cache directory for transformers.")
 
-    Attributes:
-        cache_dir (None | str): The cache directory for transformers.
-            If provided, it will be converted to an absolute path.
-    """
-
-    cache_dir: None | str = None
-
-    def __post_init__(self):
-        """
-        Post-initialization method for TransformerConfig.
-
-        If the cache directory is provided, it converts the path to an absolute path.
-        Otherwise, it sets the cache directory to None.
-        """
-        if self.cache_dir:
-            self.cache_dir = str(Path(self.cache_dir).absolute())
+    @field_validator('cache_dir', mode='after')
+    @classmethod
+    def validate_cache_dir(cls, cache_dir: str | None) -> str | None:
+        if cache_dir:
+            cache_dir = str(Path(cache_dir).absolute())
         else:
-            self.cache_dir = None
+            cache_dir = None
+        return cache_dir
 
 
 class Config:
@@ -93,11 +78,12 @@ class Config:
                 configuration file. If None, an empty configuration will be used. Defaults to None.
         """
         if not self._initialized:
-            self.config = self._load_config(config_or_file_path)
+            with context_error_catcher():
+                self.config = self._load_config(config_or_file_path)
 
-            self._log_config = LogConfig(**self.config.get('log', {}))
-            self._transformer_config = TransformerConfig(**self.config.get('transformers', {}))
-            self._initialized = True
+                self._log_config = LogConfig(**self.config.get('log', {}))
+                self._transformer_config = TransformerConfig(**self.config.get('transformers', {}))
+                self._initialized = True
 
     @staticmethod
     def _load_config(config_or_file_path: str | None | dict | Path = None) -> dict[str, dict[str, Any]]:

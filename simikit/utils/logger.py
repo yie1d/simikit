@@ -6,6 +6,10 @@ from loguru import logger as _loguru_logger
 
 from simikit.config import config
 
+__all__ = [
+    'logger'
+]
+
 
 class LogLevel(Enum):
     TRACE: int = 5
