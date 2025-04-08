@@ -1,6 +1,6 @@
 # Log configuration.
 [log]
-level = 'DEBUG'
+level = 'SUCCESS'
 
 # Transformers configuration.
 [transformers]
