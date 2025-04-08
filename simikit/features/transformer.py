@@ -16,9 +16,10 @@ __all__ = [
     'DinoV2',
 ]
 
-CACHE_DIR = Path(config.transformers.cache_dir)
+CACHE_DIR = config.transformers.cache_dir
 
 if CACHE_DIR:
+    CACHE_DIR = Path(config.transformers.cache_dir)
     if not CACHE_DIR.exists():
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
         logger.info(f"Creating cache dir at {CACHE_DIR}")

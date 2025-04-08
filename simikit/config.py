@@ -22,7 +22,7 @@ PROJECT_ROOT = get_project_root()
 
 class LogConfig(BaseModel):
     level: Literal['TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL'] = Field(
-        'DEBUG',
+        'SUCCESS',
         description='The logging level.'
     )
 

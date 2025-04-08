@@ -22,7 +22,7 @@ class LogLevel(Enum):
 
 
 def set_logger(
-    print_level: str | LogLevel = LogLevel.INFO,
+    print_level: str | LogLevel = LogLevel.SUCCESS,
 ) -> loguru._logger.Logger:
     """Sets up the logger and returns it.
 
