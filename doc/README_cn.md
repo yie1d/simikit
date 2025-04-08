@@ -11,11 +11,33 @@ SimiKit 是一个常用图像相似度算法的工具箱。该项目提供各种
 > pip instal simikit
 
 ## 基础用法
-```python
-from simikit.features.hash import AHash
 
-image_path = r'tests/image.png'
-print(AHash().encode(image_path))
+### 1. 提取图像特征
+```python
+from simikit.features import AHash, Vit, DinoV2
+
+print(DinoV2().encode('./t1.png'))
+print(Vit().encode('./t1.png'))
+print(AHash().encode('./t1.png'))
+
+```
+
+### 2. 通过多种算法使用比较器
+```python
+from simikit.api import Comparator
+from simikit.features import AHash, DHash
+from simikit.metrics import hamming_distance
+
+comparator = Comparator([
+    (DHash(16, vertical=True), hamming_distance),
+    (AHash(16), hamming_distance),
+    (AHash(8), hamming_distance),
+])
+
+print(comparator.compare_image(
+    './t1.png',
+    './t2.png',
+))
 ```
 
 ## 支持的算法
