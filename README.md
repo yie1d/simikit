@@ -12,11 +12,33 @@ SimiKit is a toolkit for commonly used image similarity algorithms. This project
 > pip instal simikit
 
 ## Basic Usage
-```python
-from simikit.features.hash import AHash
 
-image_path = r'tests/image.png'
-print(AHash().encode(image_path))
+### 1. extract image features
+```python
+from simikit.features import AHash, Vit, DinoV2
+
+print(DinoV2().encode('./t1.png'))
+print(Vit().encode('./t1.png'))
+print(AHash().encode('./t1.png'))
+
+```
+
+### 2. use comparator by multiple algorithms
+```python
+from simikit.api import Comparator
+from simikit.features import AHash, DHash
+from simikit.metrics import hamming_distance
+
+comparator = Comparator([
+    (DHash(16, vertical=True), hamming_distance),
+    (AHash(16), hamming_distance),
+    (AHash(8), hamming_distance),
+])
+
+print(comparator.compare_image(
+    './t1.png',
+    './t2.png',
+))
 ```
 
 ## Supported Algorithms
