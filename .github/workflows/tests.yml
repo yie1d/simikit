@@ -4,12 +4,12 @@
 name: run tests
 
 on:
-  push:
-    paths:
-      - 'simikit/*'
-  pull_request:
-    paths:
-      - 'simikit/*'
+#  push:
+#    paths:
+#      - 'simikit/*'
+#  pull_request:
+#    paths:
+#      - 'simikit/*'
   workflow_dispatch:
 
 jobs:
