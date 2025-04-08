@@ -3,41 +3,63 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
+from pydantic import BaseModel, Field, field_validator
 
 from simikit.utils.images import load_image
 
+__all__ = [
+    'BaseFeature',
+    'BaseExtractor'
+]
 
-class BaseFeature:
+
+class BaseFeature(BaseModel):
     """
-    A base class representing a feature.
-    This class encapsulates feature data in a NumPy array.
+    A Pydantic model representing a base feature.
+
+    This class is used to encapsulate feature data along with its type.
+    It uses Pydantic for data validation, ensuring that the feature data is in the correct format.
     """
+    model_config = {
+        'arbitrary_types_allowed': True
+    }  # allow arbitrary types
+    type: str = Field(..., description='The type of the feature.')
+    data: np.ndarray = Field(..., description='The feature data stored as a NumPy array.')
 
-    TYPE: str = ''
-
-    def __init__(self, data: np.ndarray):
+    @field_validator('data', mode='before')
+    @classmethod
+    def validate_data(cls, v: np.ndarray) -> np.ndarray:
         """
-        Initialize a BaseFeature object.
+        Validate that the provided data is a NumPy array.
+
+        This class method is used as a field validator for the 'data' field.
+        It ensures that the input value for the 'data' field is of type numpy.ndarray.
 
         Args:
-            data (np.ndarray): The feature data stored as a NumPy array.
-        """
-        self._data = data
-        self._judge()
+            v (np.ndarray): The input value for the 'data' field.
 
-    def _judge(self):
-        if not self.TYPE:
-            raise ValueError('Feature type is not defined.')
-
-    @property
-    def type(self) -> str:
-        """
-        Get the type of the feature.
+        Raises:
+            TypeError: If the input value is not a NumPy array.
 
         Returns:
-            str: The type of the feature.
+            np.ndarray: The input value if it is a NumPy array.
         """
-        return self.TYPE
+        if isinstance(v, np.ndarray) is False:
+            raise TypeError('The data must be a NumPy array.')
+        return v
+
+    @property
+    def value(self) -> np.ndarray | str:
+        """
+        Get the value of the feature data.
+
+        This property provides a convenient way to access the 'data' field of the BaseFeature instance.
+
+        Returns:
+            The feature data as a NumPy array or potentially a string depending on the implementation.
+            In the current implementation, it always returns the NumPy array stored in the 'data' field.
+        """
+        return self.data
 
 
 class BaseExtractor(ABC):

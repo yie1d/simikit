@@ -4,28 +4,44 @@ from typing import Literal
 import numpy as np
 import pywt
 from PIL import Image
+from pydantic import Field
 from scipy.fftpack import dct
 
 from simikit.features.base import BaseExtractor, BaseFeature
 from simikit.utils.images import resize_image
 
+__all__ = [
+    'AHash',
+    'DHash',
+    'PHash',
+    'WHash',
+]
 WhashWavelet = Literal['haar', 'db4']
 
 
 class HashFeature(BaseFeature):
-    """Base class for hash features."""
+    """
+    Base class for hash features.
 
-    TYPE = 'hash'
+    This class serves as a base for all hash - based feature classes. It inherits from BaseFeature
+    and provides a common structure for hash features, including a specific type and a method to
+    convert the binary hash array to a hexadecimal string.
+    """
 
-    def __init__(self, data: np.ndarray):
+    type: str = Field('hash', description='The type of the feature.')
+
+    @property
+    def value(self) -> str:
         """
-        Initialize a HashFeature object.
+        Get the hexadecimal string representation of the hash feature.
 
-        Args:
-            data (np.ndarray): The binary array representing the hash feature.
+        This property calls the _binary_array_to_hex method to convert the binary hash data
+        stored in the 'data' attribute of the HashFeature instance to a hexadecimal string.
+
+        Returns:
+            str: The hexadecimal string representation of the hash feature.
         """
-        super().__init__(data)
-        self._hex = self._binary_array_to_hex(data)
+        return self._binary_array_to_hex(self.data)
 
     @staticmethod
     def _binary_array_to_hex(hash_array: np.ndarray) -> str:
@@ -42,24 +58,6 @@ class HashFeature(BaseFeature):
         packed = np.packbits(hash_array)
         hex_chars = formatter(packed)
         return ''.join(hex_chars)
-
-    def __str__(self):
-        """
-        Return the hexadecimal string representation of the hash feature.
-
-        Returns:
-            str: The hexadecimal string.
-        """
-        return self._hex
-
-    def __repr__(self):
-        """
-        Return the hexadecimal string representation of the hash feature for debugging purposes.
-
-        Returns:
-            str: The hexadecimal string.
-        """
-        return self._hex
 
 
 class BaseImageHash(BaseExtractor):
@@ -95,7 +93,7 @@ class BaseImageHash(BaseExtractor):
         """
         image_array = self._preprocess_image(image)
         hash_array = self._hash_algo(image_array)
-        return HashFeature(hash_array)
+        return HashFeature(data=hash_array)
 
     def _special_preprocess(self, image: Image.Image) -> Image.Image:
         """

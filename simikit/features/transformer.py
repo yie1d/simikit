@@ -4,42 +4,34 @@ from pathlib import Path
 import numpy as np
 import torch
 from PIL import Image
+from pydantic import Field
 from transformers import AutoImageProcessor, AutoModel, BaseImageProcessor, BatchFeature, PreTrainedModel, ViTModel
 
 from simikit.config import config
 from simikit.features.base import BaseExtractor, BaseFeature
+from simikit.utils.logger import logger
+
+__all__ = [
+    'Vit',
+    'DinoV2',
+]
 
 CACHE_DIR = Path(config.transformers.cache_dir)
 
 if CACHE_DIR:
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    if not CACHE_DIR.exists():
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Creating cache dir at {CACHE_DIR}")
 
 
 class TransformerFeature(BaseFeature):
     """
-    A class representing features extracted by a transformer model.
-    It inherits from the BaseFeature class and provides specific string and representation methods.
+    A class that inherits from BaseFeature, used to represent features extracted by Transformer models.
+
+    This class sets the 'type' field to clearly indicate that the feature type is 'transformer',
+    making it easier to identify and distinguish different types of features in subsequent processing.
     """
-
-    TYPE = 'transformer'
-
-    def __str__(self):
-        """
-        Return the string representation of the feature data.
-
-        Returns:
-            str: The feature data.
-        """
-        return str(self._data)
-
-    def __repr__(self):
-        """
-        Return the string representation of the feature data for debugging purposes.
-
-        Returns:
-            str: The feature data.
-        """
-        return str(self._data)
+    type: str = Field('transformer', description='The type of the feature.')
 
 
 class BaseTransformer(BaseExtractor):
@@ -73,9 +65,11 @@ class BaseTransformer(BaseExtractor):
         """
         if not self._initialized:
             super().__init__()
+            logger.info(f'Initializing transformer feature extractor: {self.__class__.__name__}')
             self._init_model()
             self._judge_model()
             self._initialized = True
+            logger.info(f'{self.__class__.__name__} initialized successfully')
 
     @abstractmethod
     def _init_model(self):
@@ -97,7 +91,7 @@ class BaseTransformer(BaseExtractor):
         )
         assert self.pretrained_model_name_or_path, 'pretrained_model_name_or_path must be specified'
 
-    def _extract_algo(self, image: Image.Image):
+    def _extract_algo(self, image: Image.Image) -> TransformerFeature:
         """
         Extract features from an image.
         Process the image using the image processor and then get the embedding from the model.
@@ -106,10 +100,10 @@ class BaseTransformer(BaseExtractor):
             image (Image.Image): The input image.
 
         Returns:
-            np.ndarray: The extracted feature embedding.
+            TransformerFeature: The extracted feature.
         """
         image_array = self.image_processor(image, return_tensors='pt')
-        return self._get_embedding(image_array)
+        return TransformerFeature(data=self._get_embedding(image_array))
 
     def _get_embedding(self, image_array: BatchFeature) -> np.ndarray:
         """
