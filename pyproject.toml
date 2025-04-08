@@ -35,7 +35,7 @@ build-constraint-dependencies = ["setuptools==60.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ['simikit']
+include = ['simikit*']
 exclude = ['tests*', 'config*', 'examples*']
 
 [tool.ruff.lint]
