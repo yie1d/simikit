@@ -121,6 +121,9 @@ class BaseTransformer(BaseExtractor):
             outputs = self.model(**image_array)
         embedding = outputs.last_hidden_state
         embedding = embedding[:, 0, :].squeeze(1)
+
+        normalized_embedding = torch.norm(embedding, p=2, dim=1, keepdim=True)
+        embedding /= normalized_embedding
         return embedding.numpy()
 
 
