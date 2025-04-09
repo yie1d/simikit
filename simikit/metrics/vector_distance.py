@@ -17,4 +17,3 @@ def euclidean_distance(vector1: np.ndarray, vector2: np.ndarray) -> float:
 
 def manhattan_distance(vector1: np.ndarray, vector2: np.ndarray) -> int:
     return int(np.sum(np.abs(vector1 - vector2)))
-

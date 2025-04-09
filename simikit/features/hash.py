@@ -29,7 +29,7 @@ class HashFeature(BaseFeature):
     """
     _hex: str = None
     type: str = Field('hash', description='The type of the feature.')
-    
+
     @property
     def hex(self) -> str:
         if self._hex is None:

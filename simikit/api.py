@@ -1,7 +1,7 @@
 from collections.abc import Callable
-from pathlib import Path
 from functools import partial
-from typing import Tuple, Dict, Any
+from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, field_validator
 
@@ -55,7 +55,7 @@ class Comparator:
 
     @staticmethod
     @timer
-    def _run_compare_algo(features_call: Tuple[Callable, Callable], metrics_call: Callable) -> Dict[str, Any]:
+    def _run_compare_algo(features_call: tuple[Callable, Callable], metrics_call: Callable) -> dict[str, Any]:
         return {
             'result': metrics_call(
                 features_call[0]().value,
@@ -82,6 +82,6 @@ class Comparator:
                     ),
                     _algo.metrics_func
                 ))
-            
+
             compare_results.append(compare_result)
         return compare_results

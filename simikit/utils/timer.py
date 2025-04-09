@@ -1,7 +1,7 @@
 import time
 from functools import wraps
-from simikit.utils.logger import logger
 
+from simikit.utils.logger import logger
 
 __all__ = [
     'timer'
