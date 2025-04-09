@@ -27,21 +27,14 @@ class HashFeature(BaseFeature):
     and provides a common structure for hash features, including a specific type and a method to
     convert the binary hash array to a hexadecimal string.
     """
-
+    _hex: str = None
     type: str = Field('hash', description='The type of the feature.')
-
+    
     @property
-    def value(self) -> str:
-        """
-        Get the hexadecimal string representation of the hash feature.
-
-        This property calls the _binary_array_to_hex method to convert the binary hash data
-        stored in the 'data' attribute of the HashFeature instance to a hexadecimal string.
-
-        Returns:
-            str: The hexadecimal string representation of the hash feature.
-        """
-        return self._binary_array_to_hex(self.data)
+    def hex(self) -> str:
+        if self._hex is None:
+            self._hex = self._binary_array_to_hex(self.data)
+        return self._hex
 
     @staticmethod
     def _binary_array_to_hex(hash_array: np.ndarray) -> str:
@@ -92,7 +85,7 @@ class BaseImageHash(BaseExtractor):
             HashFeature: The extracted hash feature.
         """
         image_array = self._preprocess_image(image)
-        hash_array = self._hash_algo(image_array)
+        hash_array = self._hash_algo(image_array).astype(int)
         return HashFeature(data=hash_array)
 
     def _special_preprocess(self, image: Image.Image) -> Image.Image:
