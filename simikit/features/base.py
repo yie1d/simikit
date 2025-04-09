@@ -49,15 +49,14 @@ class BaseFeature(BaseModel):
         return v
 
     @property
-    def value(self) -> np.ndarray | str:
+    def value(self) -> np.ndarray:
         """
         Get the value of the feature data.
 
         This property provides a convenient way to access the 'data' field of the BaseFeature instance.
 
         Returns:
-            The feature data as a NumPy array or potentially a string depending on the implementation.
-            In the current implementation, it always returns the NumPy array stored in the 'data' field.
+            The feature data as a NumPy array.
         """
         return self.data
 
