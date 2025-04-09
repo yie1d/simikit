@@ -1,21 +1,20 @@
+import numpy as np
+
 __all__ = [
-    'hamming_distance'
+    'hamming_distance',
+    'euclidean_distance',
+    'manhattan_distance',
 ]
 
 
-def hamming_distance(vector1: str, vector2: str) -> int:
-    """
-    Calculate the Hamming distance between two hexadecimal strings.
+def hamming_distance(vector1: np.ndarray, vector2: np.ndarray) -> int:
+    return int(np.sum(vector1 != vector2))
 
-    The Hamming distance is the number of positions at which the corresponding bits are different.
-    This function first converts the hexadecimal strings to integers and then uses the bitwise XOR operation
-    to find the positions where the bits differ. Finally, it counts the number of set bits in the result.
 
-    Args:
-        vector1 (str): The first hexadecimal string representing a binary vector.
-        vector2 (str): The second hexadecimal string representing a binary vector.
+def euclidean_distance(vector1: np.ndarray, vector2: np.ndarray) -> float:
+    return float(np.linalg.norm(vector1 - vector2))
 
-    Returns:
-        int: The Hamming distance between the two vectors.
-    """
-    return (int(vector1, 16) ^ int(vector2, 16)).bit_count()
+
+def manhattan_distance(vector1: np.ndarray, vector2: np.ndarray) -> int:
+    return int(np.sum(np.abs(vector1 - vector2)))
+
