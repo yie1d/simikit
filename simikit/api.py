@@ -1,10 +1,13 @@
 from collections.abc import Callable
 from pathlib import Path
+from functools import partial
+from typing import Tuple, Dict, Any
 
 from pydantic import BaseModel, field_validator
 
 from simikit.features.base import BaseExtractor
 from simikit.utils.error_catcher import context_error_catcher, wraps_error_catcher
+from simikit.utils.timer import timer
 
 __all__ = [
     'Comparator'
@@ -50,6 +53,16 @@ class Comparator:
 
         return _algos
 
+    @staticmethod
+    @timer
+    def _run_compare_algo(features_call: Tuple[Callable, Callable], metrics_call: Callable) -> Dict[str, Any]:
+        return {
+            'result': metrics_call(
+                features_call[0]().value,
+                features_call[1]().value
+            )
+        }
+
     @wraps_error_catcher
     def compare_image(self, image1: str | Path, image2: str | Path):
         image1 = InputImage(image=image1).image
@@ -57,12 +70,18 @@ class Comparator:
 
         compare_results = []
         for _algo in self._algos:
-            compare_results.append({
+            compare_result = {
                 'features_func': _algo.features_func.__class__.__name__,
-                'metrics_func': _algo.metrics_func.__name__,
-                'result': _algo.metrics_func(
-                    _algo.features_func.encode(image1).value,
-                    _algo.features_func.encode(image2).value
-                )
-            })
+                'metrics_func': _algo.metrics_func.__name__
+            }
+            compare_result.update(
+                self._run_compare_algo(
+                    (
+                        partial(_algo.features_func.encode, image1),
+                        partial(_algo.features_func.encode, image2)
+                    ),
+                    _algo.metrics_func
+                ))
+            
+            compare_results.append(compare_result)
         return compare_results
